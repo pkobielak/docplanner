@@ -1,0 +1,42 @@
+environments:
+  test-eu-north-1:
+    values:
+      - env: test
+      - region: eu-north-1
+    kubeContext: arn:aws:eks:{{ .Environment.Values.region }}:019496914213:cluster/eks-docplanner-{{ .Environment.Values.env }}
+
+  prod-eu-north-1:
+    values:
+      - env: prod
+      - region: eu-north-1
+    kubeContext: arn:aws:eks:{{ .Environment.Values.region }}:019496914213:cluster/eks-docplanner-{{ .Environment.Values.env }}
+---
+repositories:
+  - name: ingress-nginx
+    url: https://kubernetes.github.io/ingress-nginx
+  - name: metrics-server
+    url: https://kubernetes-sigs.github.io/metrics-server
+
+
+templates:
+  default: &default
+    missingFileHandler: Warn
+    values:
+      - config/{{`{{ .Release.Name }}`}}/common.yaml
+      - config/{{`{{ .Release.Name }}`}}/{{`{{ .Environment.Values.env }}`}}.yaml
+    secrets:
+      - config/{{`{{ .Release.Name }}`}}/common.secrets.yaml
+      - config/{{`{{ .Release.Name }}`}}/{{`{{ .Environment.Values.env }}`}}.secrets.yaml
+
+releases:
+  - name: ingress-nginx
+    namespace: ingress-controllers
+    chart: ingress-nginx/ingress-nginx
+    version: 4.12.3
+    <<: *default
+
+  - name: metrics-server
+    namespace: kube-system
+    chart: metrics-server/metrics-server
+    version: 3.12.2
+    <<: *default

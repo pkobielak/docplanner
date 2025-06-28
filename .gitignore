@@ -1,0 +1,9 @@
+# MacOS
+.DS_Store
+
+# Credentials
+credentials.env
+
+# Terragrunt
+.terragrunt
+.terragrunt-cache

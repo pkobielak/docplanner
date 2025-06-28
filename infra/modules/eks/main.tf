@@ -1,0 +1,61 @@
+terraform {
+  backend "s3" {}
+}
+
+module "eks" {
+  source  = "terraform-aws-modules/eks/aws"
+  version = "~> 20.0"
+
+  cluster_name    = "eks-docplanner-${var.env}"
+  cluster_version = "1.31"
+
+  # EKS Addons
+  cluster_addons = {
+    coredns                = {
+      most_recent = true
+    }
+    eks-pod-identity-agent = {
+      most_recent = true
+    }
+    kube-proxy             = {
+      most_recent = true
+    }
+    vpc-cni                = {
+      most_recent = true
+    }
+  }
+
+  cluster_endpoint_public_access = true
+  enable_cluster_creator_admin_permissions = true
+
+  vpc_id     = var.vpc_id
+  subnet_ids = var.subnet_ids
+
+  eks_managed_node_groups = {
+    workers = {
+      ami_type       = "AL2_x86_64"
+      instance_types = ["t3.medium"]
+
+      min_size = 2
+      max_size = 5
+      # This value is ignored after the initial creation
+      # https://github.com/bryantbiggs/eks-desired-size-hack
+      desired_size = 2
+    }
+  }
+
+  # Extended node-to-node security group rules
+  # For faster node-to-node communication
+  node_security_group_additional_rules = {
+    ingress_self_all = {
+      description = "Node to node all ports/protocols"
+      protocol    = "-1"
+      from_port   = 0
+      to_port     = 0
+      type        = "ingress"
+      self        = true
+    }
+  }
+
+  tags = var.tags
+}

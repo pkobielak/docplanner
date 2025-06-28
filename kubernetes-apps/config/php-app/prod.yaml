@@ -1,0 +1,4 @@
+replicaCount: 2
+
+extraEnv:
+  APP_ENV: prod

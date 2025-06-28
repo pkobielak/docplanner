@@ -1,0 +1,24 @@
+controller:
+  image:
+    pullPolicy: Always
+  ingressClassResource:
+    name: nginx
+    enabled: true
+    default: true
+  replicaCount: 2
+  minAvailable: 1
+  priorityClassName: system-cluster-critical
+  resources:
+    requests:
+      cpu: 25m
+      memory: 130Mi
+
+defaultBackend:
+  enabled: true
+  image:
+    pullPolicy: Always
+  resources:
+    requests:
+      cpu: 10m
+      memory: 20Mi
+  priorityClassName: system-cluster-critical

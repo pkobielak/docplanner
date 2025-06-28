@@ -1,0 +1,34 @@
+environments:
+  test-eu-north-1:
+    values:
+      - env: test
+      - region: eu-north-1
+    kubeContext: arn:aws:eks:{{ .Environment.Values.region }}:019496914213:cluster/eks-docplanner-{{ .Environment.Values.env }}
+
+  prod-eu-north-1:
+    values:
+      - env: prod
+      - region: eu-north-1
+    kubeContext: arn:aws:eks:{{ .Environment.Values.region }}:019496914213:cluster/eks-docplanner-{{ .Environment.Values.env }}
+---
+templates:
+  default: &default
+    missingFileHandler: Warn
+    values:
+      - config/{{`{{ .Release.Name }}`}}/common.yaml
+      - config/{{`{{ .Release.Name }}`}}/{{`{{ .Environment.Values.env }}`}}.yaml
+    secrets:
+      - config/{{`{{ .Release.Name }}`}}/common.secrets.yaml
+      - config/{{`{{ .Release.Name }}`}}/{{`{{ .Environment.Values.env }}`}}.secrets.yaml
+
+releases:
+  - name: php-app
+    namespace: php-app
+    chart: charts/php-app
+    version: 0.0.1
+    <<: *default
+  - name: go-app
+    namespace: go-app
+    chart: charts/go-app
+    version: 0.0.1
+    <<: *default
