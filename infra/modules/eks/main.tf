@@ -64,6 +64,21 @@ module "eks" {
     }
   }
 
+  access_entries = {
+    rekrutacja = {
+      principal_arn = "arn:aws:iam::019496914213:user/rekrutacja"
+
+      policy_associations = {
+        admin_access = {
+          policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+          access_scope = {
+            type       = "cluster"
+          }
+        }
+      }
+    }
+  }
+
   tags = var.tags
 }
 
