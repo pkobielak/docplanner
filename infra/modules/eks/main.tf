@@ -36,11 +36,18 @@ module "eks" {
       ami_type       = "AL2_x86_64"
       instance_types = ["t3.medium"]
 
-      min_size = 2
+      min_size = 1
       max_size = 5
       # This value is ignored after the initial creation
       # https://github.com/bryantbiggs/eks-desired-size-hack
       desired_size = 2
+    }
+  }
+
+  eks_managed_node_group_defaults = {
+    tags = {
+      "k8s.io/cluster-autoscaler/enabled" = "true",
+      "k8s.io/cluster-autoscaler/eks-docplanner-${var.env}" = "true",
     }
   }
 
@@ -54,6 +61,29 @@ module "eks" {
       to_port     = 0
       type        = "ingress"
       self        = true
+    }
+  }
+
+  tags = var.tags
+}
+
+module "cluster_autoscaler_pod_identity" {
+  source = "terraform-aws-modules/eks-pod-identity/aws"
+
+  name = "cluster-autoscaler"
+
+  attach_cluster_autoscaler_policy = true
+  cluster_autoscaler_cluster_names = [module.eks.cluster_name]
+
+  # Pod Identity Associations
+  association_defaults = {
+    namespace       = "kube-system"
+    service_account = "cluster-autoscaler-sa"
+  }
+
+  associations = {
+    main = {
+      cluster_name = module.eks.cluster_name
     }
   }
 

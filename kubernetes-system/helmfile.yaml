@@ -16,7 +16,9 @@ repositories:
     url: https://kubernetes.github.io/ingress-nginx
   - name: metrics-server
     url: https://kubernetes-sigs.github.io/metrics-server
-
+  - name: autoscaler
+    url: https://kubernetes.github.io/autoscaler
+    
 
 templates:
   default: &default
@@ -40,3 +42,14 @@ releases:
     chart: metrics-server/metrics-server
     version: 3.12.2
     <<: *default
+
+  - name: cluster-autoscaler
+    namespace: kube-system
+    chart: autoscaler/cluster-autoscaler
+    version: 9.46.6
+    <<: *default
+    set:
+      - name: autoDiscovery.clusterName
+        value: "eks-docplanner-{{ .Environment.Values.env }}"
+      - name: awsRegion
+        value: "{{ .Environment.Values.region }}"

@@ -20,7 +20,6 @@ module "db" {
   create_db_option_group    = false
   create_db_parameter_group = false
 
-  # All available versions: https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_PostgreSQL.html#PostgreSQL.Concepts
   engine               = "postgres"
   engine_version       = "14"
   family               = "postgres14" # DB parameter group
